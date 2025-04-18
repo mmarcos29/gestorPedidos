@@ -10,8 +10,4 @@
     <ProjectReference Include="..\gestorPedido.Domain\gestorPedido.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DTOs\" />
-  </ItemGroup>
-
 </Project>
