@@ -7,5 +7,8 @@ namespace gestorPedidos.API.Controllers
     [ApiController]
     public class RevendaController : ControllerBase
     {
+        [HttpGet]
+        public IActionResult Get() => Ok("API funcionando!");
+
     }
 }

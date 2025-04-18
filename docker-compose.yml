@@ -4,7 +4,7 @@
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5000:80"
+      - "5000:8080"
     depends_on:
       - sqlserver
     environment:
@@ -14,7 +14,7 @@
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: sql_server
     environment:
-      SA_PASSWORD: "#40028922A#"
+      SA_PASSWORD: "40028922A#"
       ACCEPT_EULA: "Y"
     ports:
       - "1433:1433"
