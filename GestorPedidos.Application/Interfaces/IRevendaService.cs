@@ -1,12 +1,13 @@
-﻿using System;
+﻿using gestorPedido.Domain.Entities;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace gestorPedidos.Application.Interfaces
+namespace gestorPedido.Domain.Interfaces
 {
-    interface IRevendaService
+    public interface IRevendaService
     {
+        bool CadastrarRevenda(Revenda revenda);
+        bool ValidarPedido(Pedido pedido);
+        string CriarPedido(Pedido pedido);
     }
 }
+

@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace gestorPedido.Domain.Entities
+public class Telefone
 {
-    public class Telefone
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        [Phone]
-        public string Numero { get; set; }
+    [Required]
+    public required string Ddd { get; set; }
 
-        public int RevendaId { get; set; }
-        public Revenda Revenda { get; set; }
-    }
+    [Phone]
+    public string? Numero { get; set; }
+
+    public int ContatoId { get; set; }
+    public Contato? Contato { get; set; }
 }

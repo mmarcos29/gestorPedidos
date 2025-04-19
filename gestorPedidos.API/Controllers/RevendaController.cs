@@ -1,46 +1,62 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using gestorPedidos.Application.Services;
-using gestorPedido.Domain.Entities;
-using gestorPedido.Domain.Interfaces;
-using System.Collections.Generic;
+﻿using gestorPedido.Domain.Entities;
+using gestorPedidos.Application.DTOs;
+using gestorPedidos.Infra.Context;
+using Microsoft.AspNetCore.Mvc;
 
-namespace gestorPedidos.API.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class RevendasController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class RevendaController : ControllerBase
+    private readonly GestorPedidosDbContext _context;
+
+    public RevendasController(GestorPedidosDbContext context)
     {
-        private readonly IRevendaService _revendaService;
+        _context = context;
+    }
 
-        public RevendaController(IRevendaService revendaService)
-        {
-            _revendaService = revendaService;
-        }
+    [HttpPost]
+    public async Task<IActionResult> CadastrarRevenda([FromBody] RevendaDto dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-        // POST: api/revenda
-        [HttpPost]
-        public IActionResult CadastrarRevenda([FromBody] Revenda revenda)
+        if (_context.Revendas.Any(r => r.Cnpj == dto.Cnpj))
+            return BadRequest("CNPJ já cadastrado.");
+
+        if (dto.Contatos.Count == 0 || !dto.Contatos.Any(c => c.Principal))
+            return BadRequest("É necessário ter ao menos um contato principal.");
+
+        var revenda = new Revenda
         {
-            if (_revendaService.CadastrarRevenda(revenda))
+            Cnpj = dto.Cnpj,
+            RazaoSocial = dto.RazaoSocial,
+            NomeFantasia = dto.NomeFantasia,
+            Email = dto.Email,
+            Contatos = dto.Contatos.Select(c => new Contato
             {
-                return Ok(new { message = "Revenda cadastrada com sucesso!" });
-            }
-            return BadRequest(new { message = "Erro ao cadastrar revenda." });
-        }
-
-        // POST: api/revenda/pedido
-        [HttpPost("pedido")]
-        public IActionResult ReceberPedido([FromBody] Pedido pedido)
-        {
-            if (pedido.Itens.Count < 1)
-                return BadRequest("O pedido precisa ter pelo menos um item.");
-
-            if (_revendaService.ValidarPedido(pedido))
+                Nome = c.Nome,
+                Principal = c.Principal,
+                Telefones = c.Telefones?.Select(t => new Telefone
+                {
+                    Ddd = t.Ddd,
+                    Numero = t.Numero
+                }).ToList() ?? new List<Telefone>()
+            }).ToList(),
+            Enderecos = dto.Enderecos.Select(e => new Endereco
             {
-                return Ok(new { pedidoId = _revendaService.CriarPedido(pedido) });
-            }
+                Logradouro = e.Logradouro,
+                Numero = e.Numero,
+                Bairro = e.Bairro,
+                Cidade = e.Cidade,
+                Estado = e.Estado,
+                Cep = e.Cep
+            }).ToList()
+        };
 
-            return BadRequest("Pedido inválido.");
-        }
+
+        _context.Revendas.Add(revenda);
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(CadastrarRevenda), new { id = revenda.Id }, revenda);
     }
 }
