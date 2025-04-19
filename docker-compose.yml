@@ -6,22 +6,28 @@
     ports:
       - "5000:8080"
     depends_on:
-      - sqlserver
+      sqlserver:
+        condition: service_healthy
     environment:
-      - ConnectionStrings__DefaultConnection=Server=localhost;Database=GestorPedidosDB;User=sa;Password=#40028922A#;
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=GestorPedidosDB;User=sa;Password=#40028922A#;Encrypt=false;TrustServerCertificate=true;
       - EnableSwagger=true
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: sql_server
     environment:
-      SA_PASSWORD: "40028922A#"
+      SA_PASSWORD: "#40028922A#"
       ACCEPT_EULA: "Y"
     ports:
       - "1433:1433"
     volumes:
       - sql_data:/var/opt/mssql
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "until timeout 1 bash -c '</dev/tcp/localhost/1433' 2>/dev/null; do sleep 1; done"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
 volumes:
   sql_data:

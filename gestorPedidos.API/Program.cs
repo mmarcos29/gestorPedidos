@@ -1,4 +1,5 @@
 using gestorPedidos.Infra.Context;
+using gestorPedidos.Infra.Seeds;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,15 @@ builder.Services.AddDbContext<GestorPedidosDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
+
+// Inicializa o banco de dados com dados de seed
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<GestorPedidosDbContext>();
+    context.Database.Migrate();
+    SeedData.Initialize(services, context);
+}
 
 var enableSwagger = builder.Configuration.GetValue<bool>("EnableSwagger");
 
