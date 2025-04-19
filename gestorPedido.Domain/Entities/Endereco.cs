@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace gestorPedido.Domain.Entities
@@ -28,7 +29,10 @@ namespace gestorPedido.Domain.Entities
         [RegularExpression(@"\d{5}-\d{3}", ErrorMessage = "CEP inválido")]
         public string Cep { get; set; }
 
+        [JsonIgnore]
         public int RevendaId { get; set; }
-        public Revenda Revenda { get; set; }
+
+        [JsonIgnore]
+        public Revenda? Revenda { get; set; }
     }
 }

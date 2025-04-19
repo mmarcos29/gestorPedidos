@@ -2,6 +2,7 @@
 using gestorPedidos.Application.DTOs;
 using gestorPedidos.Infra.Context;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -12,6 +13,18 @@ public class RevendasController : ControllerBase
     public RevendasController(GestorPedidosDbContext context)
     {
         _context = context;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var revendas = await _context.Revendas
+            .Include(r => r.Contatos)
+            .ThenInclude(c => c.Telefones)
+            .Include(r => r.Enderecos)
+            .ToListAsync();
+
+        return Ok(revendas);
     }
 
     [HttpPost]
@@ -58,5 +71,62 @@ public class RevendasController : ControllerBase
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(CadastrarRevenda), new { id = revenda.Id }, revenda);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var revenda = await _context.Revendas
+            .Include(r => r.Contatos)
+            .ThenInclude(c => c.Telefones)
+            .Include(r => r.Enderecos)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
+        if (revenda == null) return NotFound();
+
+        return Ok(revenda);
+    }
+
+    
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] Revenda updated)
+    {
+        var revenda = await _context.Revendas
+            .Include(r => r.Contatos)
+            .ThenInclude(c => c.Telefones)
+            .Include(r => r.Enderecos)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
+        if (revenda == null) return NotFound();
+
+        revenda.Cnpj = updated.Cnpj;
+        revenda.RazaoSocial = updated.RazaoSocial;
+        revenda.NomeFantasia = updated.NomeFantasia;
+        revenda.Email = updated.Email;
+        _context.Contatos.RemoveRange(revenda.Contatos);
+        _context.Enderecos.RemoveRange(revenda.Enderecos);
+
+        revenda.Contatos = updated.Contatos;
+        revenda.Enderecos = updated.Enderecos;
+
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var revenda = await _context.Revendas
+            .Include(r => r.Contatos)
+            .ThenInclude(c => c.Telefones)
+            .Include(r => r.Enderecos)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
+        if (revenda == null) return NotFound();
+
+        _context.Revendas.Remove(revenda);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 }
