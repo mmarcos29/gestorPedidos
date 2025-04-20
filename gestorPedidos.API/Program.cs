@@ -1,16 +1,17 @@
-using gestorPedidos.Application.Interfaces;
-using gestorPedidos.Application.Services;
+using gestorPedidos.API.Configuration;
+using gestorPedidos.API.Middlewares;
 using gestorPedidos.Infra.Context;
 using gestorPedidos.Infra.Seeds;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerConfiguration();
 
 builder.Services.AddControllers()
     .AddJsonOptions(x =>
@@ -19,7 +20,7 @@ builder.Services.AddControllers()
         x.JsonSerializerOptions.WriteIndented = true;
     });
 
-builder.Services.AddScoped<IPedidoService, PedidoService>();
+builder.Services.AddApplicationServices();
 
 builder.Services.AddDbContext<GestorPedidosDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -44,6 +45,8 @@ if (enableSwagger)
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ErroHandlingMiddleware>();
 
 app.UseAuthorization();
 

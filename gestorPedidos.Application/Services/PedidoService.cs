@@ -1,6 +1,7 @@
 ﻿using gestorPedido.Domain.Entities;
 using gestorPedidos.Application.DTOs;
 using gestorPedidos.Application.DTOs.Response;
+using gestorPedidos.Application.Exceptions;
 using gestorPedidos.Application.Interfaces;
 using gestorPedidos.Infra.Context;
 using Microsoft.EntityFrameworkCore;
@@ -30,10 +31,9 @@ namespace gestorPedidos.Application.Services
             if (revenda == null)
             {
                 _logger.LogError("Revenda não encontrada para o ID: {RevendaId}", pedidoDto.RevendaId);
-                throw new KeyNotFoundException($"Revenda com ID {pedidoDto.RevendaId} não encontrada.");
+                throw new NotFoundException($"Revenda com ID {pedidoDto.RevendaId} não encontrada.");
             }
 
-            // Verificar se todos os produtos existem antes de adicionar os itens
             var produtosIds = pedidoDto.Itens?
                 .Select(i => i.ProdutoId)
                 .ToList() ?? new List<int>();
@@ -45,7 +45,7 @@ namespace gestorPedidos.Application.Services
             if (produtosIds.IsNullOrEmpty() || (produtosIds.Count != produtosExistentes.Count))
             {
                 _logger.LogError("Um ou mais produtos não encontrados");
-                throw new KeyNotFoundException("Um ou mais produtos não encontrados");
+                throw new NotFoundException("Um ou mais produtos não encontrados");
             }
 
             var pedido = new Pedido
@@ -86,7 +86,7 @@ namespace gestorPedidos.Application.Services
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (pedido == null)
-                return null;
+                throw new NotFoundException("Pedido não encontrado");
 
             return MapearPedidoResponse(pedido);
         }
@@ -113,7 +113,7 @@ namespace gestorPedidos.Application.Services
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (pedido == null)
-                throw new KeyNotFoundException("Pedido não encontrado");
+                throw new NotFoundException("Pedido não encontrado");
 
             pedido.ClienteId = pedidoDto.ClienteId;
             pedido.RevendaId = pedidoDto.RevendaId;
@@ -137,7 +137,7 @@ namespace gestorPedidos.Application.Services
         {
             var pedido = await _context.Pedidos.FindAsync(id);
             if (pedido == null)
-                throw new KeyNotFoundException("Pedido não encontrado");
+                throw new NotFoundException("Pedido não encontrado");
 
             pedido.DeletedAt = DateTime.Now;
             _context.Pedidos.Update(pedido);

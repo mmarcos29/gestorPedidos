@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Threading.Tasks;
+﻿using gestorPedidos.Application.DTOs.Response;
+using gestorPedidos.Application.Exceptions;
+using System.Net;
+using System.Text.Json;
 
 namespace gestorPedidos.API.Middlewares
 {
@@ -13,17 +14,65 @@ namespace gestorPedidos.API.Middlewares
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext httpContext)
+        public async Task InvokeAsync(HttpContext context)
         {
             try
             {
-                await _next(httpContext);
+                await _next(context);
             }
             catch (Exception ex)
             {
-                httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                await httpContext.Response.WriteAsync($"Erro interno do servidor: {ex.Message}");
+                await HandleExceptionAsync(context, ex);
             }
+        }
+
+        private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+        {
+            HttpStatusCode statusCode = HttpStatusCode.InternalServerError;
+            string message = "Ocorreu um erro inesperado.";
+            string? details = exception.Message;
+
+            switch (exception)
+            {
+                case NotFoundException:
+                    statusCode = HttpStatusCode.NotFound;
+                    message = exception.Message;
+                    break;
+
+                case BadRequestException:
+                case ValidationException:
+                    statusCode = HttpStatusCode.BadRequest;
+                    message = exception.Message;
+                    break;
+
+                case UnauthorizedException:
+                    statusCode = HttpStatusCode.Unauthorized;
+                    message = exception.Message;
+                    break;
+
+                case ForbiddenException:
+                    statusCode = HttpStatusCode.Forbidden;
+                    message = exception.Message;
+                    break;
+
+                default:
+                    details = exception.ToString();
+                    break;
+            }
+
+            var response = new ErroResponseDto
+            {
+                Status = (int)statusCode,
+                Message = message,
+                Details = details
+            };
+
+            var result = JsonSerializer.Serialize(response);
+
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)statusCode;
+
+            return context.Response.WriteAsync(result);
         }
     }
 }
