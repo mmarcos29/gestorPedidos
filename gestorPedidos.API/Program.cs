@@ -1,3 +1,5 @@
+using gestorPedidos.Application.Interfaces;
+using gestorPedidos.Application.Services;
 using gestorPedidos.Infra.Context;
 using gestorPedidos.Infra.Seeds;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +18,8 @@ builder.Services.AddControllers()
         x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         x.JsonSerializerOptions.WriteIndented = true;
     });
+
+builder.Services.AddScoped<IPedidoService, PedidoService>();
 
 builder.Services.AddDbContext<GestorPedidosDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

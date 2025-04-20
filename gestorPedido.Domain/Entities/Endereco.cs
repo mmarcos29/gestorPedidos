@@ -1,36 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using gestorPedido.Domain.Entities.Abstracts;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace gestorPedido.Domain.Entities
 {
-    public class Endereco
+    public class Endereco : BaseEntity
     {
-        public int Id { get; set; }
+        [Required]
+        public required string Logradouro { get; set; }
+
+        public string? Numero { get; set; }
 
         [Required]
-        public string Logradouro { get; set; }
-        public string Numero { get; set; }
+        public required string Bairro { get; set; }
 
         [Required]
-        public string Bairro { get; set; }
+        public required string Cidade { get; set; }
 
         [Required]
-        public string Cidade { get; set; }
-
-        [Required]
-        public string Estado { get; set; }
+        public required string Estado { get; set; }
 
         [Required]
         [RegularExpression(@"\d{5}-\d{3}", ErrorMessage = "CEP inválido")]
-        public string Cep { get; set; }
+        public required string Cep { get; set; }
 
         [JsonIgnore]
-        public int RevendaId { get; set; }
+        [ForeignKey("Cliente")]
+        public int? ClienteId { get; set; }
+
+        [JsonIgnore]
+        public Cliente? Cliente { get; set; }
+
+        [JsonIgnore]
+        [ForeignKey("Revenda")]
+        public int? RevendaId { get; set; }
 
         [JsonIgnore]
         public Revenda? Revenda { get; set; }

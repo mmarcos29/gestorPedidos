@@ -1,23 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using System.Collections.Generic;
+﻿using gestorPedido.Domain.Entities.Abstracts;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gestorPedido.Domain.Entities
 {
-    public class Pedido
+    public class Pedido : BaseEntity
     {
-        public string ClienteId { get; set; }
+        [ForeignKey("Cliente")]
+        public required int ClienteId { get; set; }
+        public Cliente? Cliente { get; set; }
+
+        [ForeignKey("Revenda")]
+        public int RevendaId { get; set; }
+        public Revenda? Revenda { get; set; }
+
+        public DateTime DataPedido { get; set; } = DateTime.UtcNow;
+
         public List<ItemPedido> Itens { get; set; } = new List<ItemPedido>();
     }
-
-    public class ItemPedido
-    {
-        public string Produto { get; set; }
-        public int Quantidade { get; set; }
-    }
 }
-

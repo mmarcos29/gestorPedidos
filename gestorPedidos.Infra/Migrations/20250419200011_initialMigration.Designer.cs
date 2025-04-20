@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using gestorPedidos.Infra.Context;
 
@@ -11,9 +12,11 @@ using gestorPedidos.Infra.Context;
 namespace gestorPedidos.Infra.Migrations
 {
     [DbContext(typeof(GestorPedidosDbContext))]
-    partial class GestorPedidosDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250419200011_initialMigration")]
+    partial class initialMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

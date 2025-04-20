@@ -124,7 +124,8 @@ public class RevendasController : ControllerBase
 
         if (revenda == null) return NotFound();
 
-        _context.Revendas.Remove(revenda);
+        revenda.DeletedAt = DateTime.Now;
+        _context.Revendas.Update(revenda);
         await _context.SaveChangesAsync();
 
         return NoContent();

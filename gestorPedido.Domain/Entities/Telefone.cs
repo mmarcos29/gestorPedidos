@@ -1,19 +1,21 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using gestorPedido.Domain.Entities.Abstracts;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-public class Telefone
+namespace gestorPedido.Domain.Entities
 {
-    public int Id { get; set; }
+    public class Telefone : BaseEntity
+    {
+        [Required]
+        public required string Ddd { get; set; }
 
-    [Required]
-    public required string Ddd { get; set; }
+        [Phone]
+        public required string Numero { get; set; }
 
-    [Phone]
-    public string? Numero { get; set; }
+        [JsonIgnore]
+        public int ContatoId { get; set; }
 
-    [JsonIgnore]
-    public int ContatoId { get; set; }
-
-    [JsonIgnore]
-    public Contato? Contato { get; set; }
+        [JsonIgnore]
+        public Contato? Contato { get; set; }
+    }
 }

@@ -1,23 +1,31 @@
-﻿using gestorPedido.Domain.Entities;
+﻿using gestorPedido.Domain.Entities.Abstracts;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
-public class Revenda
+namespace gestorPedido.Domain.Entities
 {
-    public int Id { get; set; }
+    [Index(nameof(Cnpj), IsUnique = true)]
+    public class Revenda : BaseEntity
+    {
+        [Required]
+        [MaxLength(18)]
+        public required string Cnpj { get; set; }
 
-    [Required]
-    public required string Cnpj { get; set; }
+        [Required]
+        [MaxLength(100)]
+        public required string RazaoSocial { get; set; }
 
-    [Required]
-    public required string RazaoSocial { get; set; }
+        [Required]
+        [MaxLength(100)]
+        public required string NomeFantasia { get; set; }
 
-    [Required]
-    public required string NomeFantasia { get; set; }
+        [Required]
+        [EmailAddress]
+        public required string Email { get; set; }
 
-    [Required]
-    [EmailAddress]
-    public required string Email { get; set; }
-
-    public List<Contato> Contatos { get; set; } = new();
-    public List<Endereco> Enderecos { get; set; } = new();
+        public ICollection<Contato> Contatos { get; set; } = new List<Contato>();
+        public ICollection<Endereco> Enderecos { get; set; } = new List<Endereco>();
+        public ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
+        public ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
+    }
 }

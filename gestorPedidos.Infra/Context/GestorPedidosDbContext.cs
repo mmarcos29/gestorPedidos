@@ -1,6 +1,6 @@
 ﻿using gestorPedido.Domain.Entities;
+using gestorPedido.Domain.Entities.Abstracts;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace gestorPedidos.Infra.Context
 {
@@ -13,45 +13,43 @@ namespace gestorPedidos.Infra.Context
         public DbSet<Contato> Contatos { get; set; }
         public DbSet<Endereco> Enderecos { get; set; }
 
+
+        public DbSet<Pedido> Pedidos { get; set; }
+        public DbSet<Produto> Produtos { get; set; }
+        public DbSet<ItemPedido> ItensPedidos { get; set; }
+        public DbSet<Cliente> Clientes { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Revenda
-            modelBuilder.Entity<Revenda>()
-                .HasIndex(r => r.Cnpj)
-                .IsUnique();
+            modelBuilder.Entity<Pedido>()
+                .HasOne(p => p.Revenda)
+                .WithMany(r => r.Pedidos)
+                .HasForeignKey(p => p.RevendaId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Cliente>()
+                .HasQueryFilter(e => !e.DeletedAt.HasValue);
+            
+            modelBuilder.Entity<Contato>()
+                .HasQueryFilter(e => !e.DeletedAt.HasValue);
+
+            modelBuilder.Entity<Endereco>()
+                .HasQueryFilter(e => !e.DeletedAt.HasValue);
+
+            modelBuilder.Entity<ItemPedido>()
+                .HasQueryFilter(e => !e.DeletedAt.HasValue);
+
+            modelBuilder.Entity<Pedido>()
+                .HasQueryFilter(e => !e.DeletedAt.HasValue);
+
+            modelBuilder.Entity<Produto>()
+                .HasQueryFilter(e => !e.DeletedAt.HasValue);
 
             modelBuilder.Entity<Revenda>()
-                .Property(r => r.Cnpj)
-                .IsRequired();
-
-            modelBuilder.Entity<Revenda>()
-                .Property(r => r.RazaoSocial)
-                .IsRequired();
-
-            modelBuilder.Entity<Revenda>()
-                .Property(r => r.NomeFantasia)
-                .IsRequired();
-
-            modelBuilder.Entity<Revenda>()
-                .Property(r => r.Email)
-                .IsRequired();
+                .HasQueryFilter(e => !e.DeletedAt.HasValue);
 
             modelBuilder.Entity<Telefone>()
-                .HasOne(t => t.Contato)
-                .WithMany(c => c.Telefones)
-                .HasForeignKey(t => t.ContatoId);
-
-            // Contato
-            modelBuilder.Entity<Contato>()
-                .HasOne(c => c.Revenda)
-                .WithMany(r => r.Contatos)
-                .HasForeignKey(c => c.RevendaId);
-
-            // Endereço
-            modelBuilder.Entity<Endereco>()
-                .HasOne(e => e.Revenda)
-                .WithMany(r => r.Enderecos)
-                .HasForeignKey(e => e.RevendaId);
+                .HasQueryFilter(e => !e.DeletedAt.HasValue);
         }
     }
 }

@@ -1,11 +1,29 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace gestorPedidos.API.Middlewares
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ErroHandlingMiddleware : ControllerBase
+    public class ErroHandlingMiddleware
     {
+        private readonly RequestDelegate _next;
+
+        public ErroHandlingMiddleware(RequestDelegate next)
+        {
+            _next = next;
+        }
+
+        public async Task InvokeAsync(HttpContext httpContext)
+        {
+            try
+            {
+                await _next(httpContext);
+            }
+            catch (Exception ex)
+            {
+                httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                await httpContext.Response.WriteAsync($"Erro interno do servidor: {ex.Message}");
+            }
+        }
     }
 }

@@ -1,12 +1,21 @@
-﻿using System;
+﻿using gestorPedido.Domain.Entities;
+using gestorPedido.Domain.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace gestorPedidos.Infra.Repositories
 {
-    class RevendaRepository
+    public class RevendaRepository : IRevendaRepository
     {
+        private static List<Revenda> _revendas = new List<Revenda>();
+
+        public void Add(Revenda revenda)
+        {
+            _revendas.Add(revenda);
+        }
+
+        public Revenda GetByCnpj(string cnpj)
+        {
+            return _revendas.FirstOrDefault(r => r.Cnpj == cnpj);
+        }
     }
 }

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using gestorPedido.Domain.Entities;
 namespace gestorPedido.Domain.Interfaces
 {
-    interface IRevendaRepository
+    public interface IRevendaRepository
     {
+        void Add(Revenda revenda);
+        Revenda GetByCnpj(string cnpj);
     }
 }
+
