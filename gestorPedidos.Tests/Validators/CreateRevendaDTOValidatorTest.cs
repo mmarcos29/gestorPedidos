@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Text;
+//using System.Threading.Tasks;
 
-namespace gestorPedidos.Tests.Validators
-{
-    class CreateRevendaDTOValidatorTest
-    {
-    }
-}
+//namespace gestorPedidos.Tests.Validators
+//{
+//    class CreateRevendaDTOValidatorTest
+//    {
+//    }
+//}

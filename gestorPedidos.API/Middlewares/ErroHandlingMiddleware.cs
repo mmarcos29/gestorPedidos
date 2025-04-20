@@ -8,10 +8,12 @@ namespace gestorPedidos.API.Middlewares
     public class ErroHandlingMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<ErroHandlingMiddleware> _logger;
 
-        public ErroHandlingMiddleware(RequestDelegate next)
+        public ErroHandlingMiddleware(RequestDelegate next, ILogger<ErroHandlingMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -22,6 +24,7 @@ namespace gestorPedidos.API.Middlewares
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Ocorreu um erro ao processar a requisição.");
                 await HandleExceptionAsync(context, ex);
             }
         }
