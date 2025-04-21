@@ -1,5 +1,6 @@
 ﻿using gestorPedido.Domain.Entities;
 using gestorPedido.Domain.Interfaces;
+using gestorPedidos.Application.DTOs.Response;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -16,8 +17,8 @@ public class RevendasController : ControllerBase
     /// <summary>
     /// Busca todos as revendas.
     /// </summary>
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
+    [HttpGet]    
+    public async Task<ActionResult<IEnumerable<RevendaResponseDto>>> GetAll()
     {
         var revendas = await _revendaService.ListarRevendasAsync();
         return Ok(revendas);
@@ -27,7 +28,7 @@ public class RevendasController : ControllerBase
     /// Cria uma revenda.
     /// </summary>
     [HttpPost]
-    public async Task<IActionResult> CadastrarRevenda([FromBody] RevendaDto dto)
+    public async Task<ActionResult<RevendaResponseDto>> CadastrarRevenda([FromBody] RevendaDto dto)
     {
         var nova = await _revendaService.CadastrarRevendaAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = nova.Id }, nova);
@@ -37,7 +38,7 @@ public class RevendasController : ControllerBase
     /// Obtem revenda por ID.
     /// </summary>
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<ActionResult<PedidoResponseDto>> GetById(int id)
     {
         var result = await _revendaService.ObterRevendaPorIdAsync(id);
         return Ok(result);

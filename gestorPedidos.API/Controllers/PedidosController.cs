@@ -1,4 +1,5 @@
 ﻿using gestorPedidos.Application.DTOs;
+using gestorPedidos.Application.DTOs.Response;
 using gestorPedidos.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,7 +20,7 @@ namespace gestorPedidos.API.Controllers
         /// Cria um novo pedido.
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> CriarPedido([FromBody] PedidoDto pedidoDto)
+        public async Task<ActionResult<PedidoResponseDto>> CriarPedido([FromBody] PedidoDto pedidoDto)
         {
             var pedido = await _pedidoService.CriarPedidoAsync(pedidoDto);
             return Ok(pedido);            
@@ -29,7 +30,7 @@ namespace gestorPedidos.API.Controllers
         /// Obtem pedido por ID.
         /// </summary>
         [HttpGet("{id}")]
-        public async Task<IActionResult> ObterPedidoPorId(int id)
+        public async Task<ActionResult<PedidoResponseDto>> ObterPedidoPorId(int id)
         {
             
             var pedido = await _pedidoService.ObterPedidoPorIdAsync(id);
@@ -41,7 +42,7 @@ namespace gestorPedidos.API.Controllers
         /// Busca todos os pedidos.
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> ListarTodosPedidos()
+        public async Task<ActionResult<IEnumerable<PedidoResponseDto>>> ListarTodosPedidos()
         {
             
             var pedidos = await _pedidoService.ListarPedidosAsync();
