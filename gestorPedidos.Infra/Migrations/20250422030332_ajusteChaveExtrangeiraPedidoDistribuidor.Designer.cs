@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using gestorPedidos.Infra.Context;
 
@@ -11,9 +12,11 @@ using gestorPedidos.Infra.Context;
 namespace gestorPedidos.Infra.Migrations
 {
     [DbContext(typeof(GestorPedidosDbContext))]
-    partial class GestorPedidosDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250422030332_ajusteChaveExtrangeiraPedidoDistribuidor")]
+    partial class ajusteChaveExtrangeiraPedidoDistribuidor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -164,7 +167,7 @@ namespace gestorPedidos.Infra.Migrations
                     b.Property<int?>("PedidoDistribuidorId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("PedidoId")
+                    b.Property<int>("PedidoId")
                         .HasColumnType("int");
 
                     b.Property<int>("ProdutoId")
@@ -406,7 +409,9 @@ namespace gestorPedidos.Infra.Migrations
 
                     b.HasOne("gestorPedido.Domain.Entities.Pedido", "Pedido")
                         .WithMany("Itens")
-                        .HasForeignKey("PedidoId");
+                        .HasForeignKey("PedidoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("gestorPedido.Domain.Entities.Produto", "Produto")
                         .WithMany()

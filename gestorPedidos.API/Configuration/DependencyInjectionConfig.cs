@@ -4,6 +4,7 @@ using gestorPedidos.Application.Messaging.Interfaces;
 using gestorPedidos.Application.Services;
 using gestorPedidos.Infra.Messaging;
 using gestorPedidos.Infra.Repositories;
+using MassTransit;
 
 namespace gestorPedidos.API.Configuration
 {
@@ -22,7 +23,10 @@ namespace gestorPedidos.API.Configuration
             services.AddScoped<IPedidoDistribuidorService, PedidoDistribuidorService>();
             services.AddScoped<IPedidoDistribuidorRepository, PedidoDistribuidorRepository>();
             services.AddScoped<IContactAdressRepository, ContactAdressRepository>();
-            services.AddScoped<IPedidoPublisher, PedidoPublisher>();
+            services.AddScoped<IPedidoDistribuidorQueue, PedidoDistribuidorQueue>();
+            services.AddMassTransitHostedService();
+            services.AddSingleton<IHostedService, RabbitMqHostedService>();
+            services.AddHttpClient<PedidoDistribuidorConsumer>();
         }
     }
 }

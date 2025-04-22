@@ -15,7 +15,7 @@ namespace gestorPedido.Domain.Entities
 
         public bool Sucesso { get; set; }
 
-        public string Retorno { get; set; }
+        public string? Retorno { get; set; }
 
         public List<ItemPedido> Itens { get; set; } = new List<ItemPedido>();
 
