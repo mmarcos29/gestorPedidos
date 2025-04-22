@@ -24,7 +24,7 @@ namespace gestorPedidos.Infra.Messaging
             var pedido = context.Message;
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("http://localhost:5140/api/DistribuidorMock/pedidos", pedido);
+                var response = await _httpClient.PostAsJsonAsync("http://localhost:8080/api/DistribuidorMock/pedidos", pedido);
                 if (response.IsSuccessStatusCode)
                 {
                     var pedidoResponse = await _service.AtualizarStatusAsync(pedido.Id, true, "sucesso");

@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gestorPedidos.Application",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gestorPedidos.Infra", "gestorPedidos.Infra\gestorPedidos.Infra.csproj", "{8C35D613-2906-4F5A-BB24-13092CD8CF54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gestorPedidos.Tests", "gestorPedidos.Tests\gestorPedidos.Tests.csproj", "{4F22B232-11FD-4E30-B3EB-A4C79BB0E4DC}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,10 +33,6 @@ Global
 		{8C35D613-2906-4F5A-BB24-13092CD8CF54}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C35D613-2906-4F5A-BB24-13092CD8CF54}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C35D613-2906-4F5A-BB24-13092CD8CF54}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4F22B232-11FD-4E30-B3EB-A4C79BB0E4DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4F22B232-11FD-4E30-B3EB-A4C79BB0E4DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4F22B232-11FD-4E30-B3EB-A4C79BB0E4DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4F22B232-11FD-4E30-B3EB-A4C79BB0E4DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

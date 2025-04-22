@@ -65,6 +65,39 @@ A aplicação foi construída utilizando o padrão **DDD (Domain-Driven Design)*
 
 ---
 
+#### 🔗 Endpoint de Envio
+```
+POST http://localhost:5000/api/PedidosDistribuidor
+```
+
+#### 📦 Exemplo de Payload
+```json
+{
+  "revendaId": 2,
+  "itens": [
+    { "produtoId": 1, "quantidade": 400 },
+    { "produtoId": 2, "quantidade": 300 },
+    { "produtoId": 3, "quantidade": 300 }
+  ]
+}
+```
+
+Esse pedido contém exatamente 1000 unidades e será processado.
+
+---
+
+## 🧪 API Externa Simulada (Mock da Distribuidora)
+
+Para simular um cenário real de instabilidade, a aplicação faz chamadas para o endpoint:
+
+```
+POST http://localhost:5000/api/DistribuidorMock/pedidos
+```
+
+Essa API responde com erro **HTTP 503 (Service Unavailable)** em cerca de **70% das tentativas**, simulando uma distribuidora fora do ar. Graças à estratégia com **RabbitMQ**, os pedidos são automaticamente reprocessados até o envio bem-sucedido.
+
+---
+
 ## 🐳 Como Executar com Docker
 
 ### Pré-requisitos
@@ -81,11 +114,11 @@ A aplicação foi construída utilizando o padrão **DDD (Domain-Driven Design)*
 
 2. Suba a aplicação:
    ```bash
-   docker-compose up --build
+   docker-compose up --build -d
    ```
 
 3. Acesse a documentação Swagger:
-   [http://localhost:5140/swagger/index.html](http://localhost:5140/swagger/index.html)
+   [http://localhost:5000/swagger/index.html](http://localhost:5000/swagger/index.html)
 
 ---
 
@@ -109,7 +142,7 @@ A aplicação **aguarda o SQL Server estar ativo** antes de executar as seeds de
 
 A aplicação está completamente integrada ao Swagger. Você pode testar todos os endpoints diretamente via:
 
-👉 [http://localhost:5140/swagger/index.html](http://localhost:5140/swagger/index.html)
+👉 [http://localhost:5000/swagger/index.html](http://localhost:5000/swagger/index.html)
 
 ---
 

@@ -25,7 +25,6 @@ namespace gestorPedidos.API.Configuration
             services.AddScoped<IContactAdressRepository, ContactAdressRepository>();
             services.AddScoped<IPedidoDistribuidorQueue, PedidoDistribuidorQueue>();
             services.AddMassTransitHostedService();
-            services.AddSingleton<IHostedService, RabbitMqHostedService>();
             services.AddHttpClient<PedidoDistribuidorConsumer>();
         }
     }
