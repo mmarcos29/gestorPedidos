@@ -4,6 +4,9 @@ namespace gestorPedido.Domain.Interfaces
 {
     public interface IPedidoRepository
     {
-        string Add(Pedido pedido);
+        Task<Pedido?> ObterPedidoPorIdAsync(int id);
+        Task<IEnumerable<Pedido>> ListarPedidosAsync();
+        Task AdicionarPedidoAsync(Pedido pedido);
+        Task AtualizarPedidoAsync(Pedido pedido);
     }
 }

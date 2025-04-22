@@ -1,116 +1,66 @@
 ﻿using gestorPedido.Domain.Entities;
+using gestorPedido.Domain.Interfaces;
 using gestorPedidos.Application.DTOs;
 using gestorPedidos.Application.DTOs.Response;
 using gestorPedidos.Application.Exceptions;
 using gestorPedidos.Application.Interfaces;
-using gestorPedidos.Infra.Context;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+using gestorPedidos.Application.Mappers;
 using Microsoft.IdentityModel.Tokens;
 
 namespace gestorPedidos.Application.Services
 {
     public class PedidoService : IPedidoService
     {
-        private readonly GestorPedidosDbContext _context;
-        private readonly ILogger<PedidoService> _logger;
+        private readonly IPedidoRepository _pedidoRepository;
+        private readonly IProdutoRepository _produtoRepository;
+        private readonly IRevendaRepository _revendaRepository;
 
-        public PedidoService(GestorPedidosDbContext context, ILogger<PedidoService> logger)
+        public PedidoService(IPedidoRepository pedidoRepository, IProdutoRepository produtoRepository, IRevendaRepository revendaRepository)
         {
-            _context = context;
-            _logger = logger;
+            _pedidoRepository = pedidoRepository;
+            _produtoRepository = produtoRepository;
+            _revendaRepository = revendaRepository;
         }
 
         public async Task<PedidoResponseDto> CriarPedidoAsync(PedidoDto pedidoDto)
         {
-            var revenda = await _context.Revendas
-                .Include(r => r.Contatos)
-                .Include(r => r.Enderecos)
-                .FirstOrDefaultAsync(r => r.Id == pedidoDto.RevendaId);
-
-            if (revenda == null)
-            {
-                _logger.LogError("Revenda não encontrada para o ID: {RevendaId}", pedidoDto.RevendaId);
+            var revenda = await _revendaRepository.ObterPorIdAsync(pedidoDto.RevendaId);
+            if (revenda == null)            
                 throw new NotFoundException($"Revenda com ID {pedidoDto.RevendaId} não encontrada.");
-            }
 
             var produtosIds = pedidoDto.Itens?
                 .Select(i => i.ProdutoId)
                 .ToList() ?? new List<int>();
-            var produtosExistentes = await _context.Produtos
-                .Where(p => produtosIds.Contains(p.Id))
-                .Select(p => p.Id)
-                .ToListAsync();
+            var produtosExistentes = await _produtoRepository.ObterProdutosPorIdsAsync(produtosIds);
 
-            if (produtosIds.IsNullOrEmpty() || (produtosIds.Count != produtosExistentes.Count))
-            {
-                _logger.LogError("Um ou mais produtos não encontrados");
+            if (produtosIds.IsNullOrEmpty() || (produtosIds.Count != produtosExistentes.Count()))
                 throw new NotFoundException("Um ou mais produtos não encontrados");
-            }
 
-            var pedido = new Pedido
-            {
-                Revenda = revenda,
-                ClienteId = pedidoDto.ClienteId,
-                DataPedido = DateTime.Now,
-                Itens = (pedidoDto.Itens ?? new List<ItemPedidoDto>()).Select(i => new ItemPedido
-                {
-                    ProdutoId = i.ProdutoId,
-                    Quantidade = i.Quantidade
-                }).ToList()
-            };
+            var pedido = PedidoMapper.MapearPedido(pedidoDto, revenda);
+            await _pedidoRepository.AdicionarPedidoAsync(pedido);
 
-            _context.Pedidos.Add(pedido);
-            await _context.SaveChangesAsync();
-
-            var pedidoResponse = new PedidoResponseDto
-            {
-                PedidoId = pedido.Id,
-                Itens = pedido.Itens.Select(i => new ItemPedidoResponseDto
-                {
-                    ProdutoId = i.ProdutoId,
-                    Quantidade = i.Quantidade
-                }).ToList()
-            };
-
-            return pedidoResponse;
+            return PedidoMapper.MapearPedidoResponse(pedido);
         }
 
         public async Task<PedidoResponseDto?> ObterPedidoPorIdAsync(int id)
         {
-            var pedido = await _context.Pedidos
-                .Include(p => p.Cliente)
-                .Include(p => p.Revenda)
-                .Include(p => p.Itens)
-                    .ThenInclude(i => i.Produto)
-                .FirstOrDefaultAsync(p => p.Id == id);
+            var pedido = await _pedidoRepository.ObterPedidoPorIdAsync(id);
 
             if (pedido == null)
                 throw new NotFoundException("Pedido não encontrado");
 
-            return MapearPedidoResponse(pedido);
+            return PedidoMapper.MapearPedidoResponse(pedido);
         }
 
         public async Task<IEnumerable<PedidoResponseDto>> ListarPedidosAsync()
         {
-            var pedidos = await _context.Pedidos
-                .Include(p => p.Cliente)
-                .Include(p => p.Revenda)
-                .Include(p => p.Itens)
-                    .ThenInclude(i => i.Produto)
-                .ToListAsync();
-
-            return pedidos.Select(MapearPedidoResponse);
+            var pedidos = await _pedidoRepository.ListarPedidosAsync();
+            return pedidos.Select(PedidoMapper.MapearPedidoResponse);
         }
 
         public async Task<PedidoResponseDto> AtualizarPedidoAsync(int id, PedidoDto pedidoDto)
         {
-            var pedido = await _context.Pedidos
-                .Include(p => p.Cliente)
-                .Include(p => p.Revenda)
-                .Include(p => p.Itens)
-                    .ThenInclude(i => i.Produto)
-                .FirstOrDefaultAsync(p => p.Id == id);
+            var pedido = await _pedidoRepository.ObterPedidoPorIdAsync(id);
 
             if (pedido == null)
                 throw new NotFoundException("Pedido não encontrado");
@@ -118,9 +68,7 @@ namespace gestorPedidos.Application.Services
             pedido.ClienteId = pedidoDto.ClienteId;
             pedido.RevendaId = pedidoDto.RevendaId;
 
-            // Garante que a lista está inicializada
             pedido.Itens ??= new List<ItemPedido>();
-
             pedido.Itens.Clear();
             pedido.Itens.AddRange((pedidoDto.Itens ?? Enumerable.Empty<ItemPedidoDto>()).Select(i => new ItemPedido
             {
@@ -128,44 +76,18 @@ namespace gestorPedidos.Application.Services
                 Quantidade = i.Quantidade
             }));
 
-            await _context.SaveChangesAsync();
-
-            return MapearPedidoResponse(pedido);
+            await _pedidoRepository.AtualizarPedidoAsync(pedido);
+            return PedidoMapper.MapearPedidoResponse(pedido);
         }
 
         public async Task ExcluirPedidoAsync(int id)
         {
-            var pedido = await _context.Pedidos.FindAsync(id);
+            var pedido = await _pedidoRepository.ObterPedidoPorIdAsync(id);
+
             if (pedido == null)
                 throw new NotFoundException("Pedido não encontrado");
-
             pedido.DeletedAt = DateTime.Now;
-            _context.Pedidos.Update(pedido);
-            await _context.SaveChangesAsync();
-        }
-
-        private static PedidoResponseDto MapearPedidoResponse(Pedido pedido)
-        {
-            var itens = pedido.Itens?.Select(i => new ItemPedidoResponseDto
-            {
-                ProdutoId = i.ProdutoId,
-                ProdutoNome = i.Produto?.Nome ?? string.Empty,
-                Quantidade = i.Quantidade,
-                PrecoUnitario = i.Produto?.Preco ?? 0,
-                Subtotal = i.Quantidade * (i.Produto?.Preco ?? 0)
-            }).ToList() ?? new List<ItemPedidoResponseDto>();
-
-            return new PedidoResponseDto
-            {
-                PedidoId = pedido.Id,
-                ClienteId = pedido.ClienteId,
-                ClienteNome = pedido.Cliente?.Nome ?? string.Empty,
-                RevendaId = pedido.RevendaId,
-                RevendaNome = pedido.Revenda?.NomeFantasia ?? string.Empty,
-                DataPedido = pedido.DataPedido,
-                Itens = itens,
-                TotalPedido = itens.Sum(i => i.Subtotal)
-            };
+            await _pedidoRepository.AtualizarPedidoAsync(pedido);
         }
     }
 }

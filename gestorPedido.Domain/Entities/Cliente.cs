@@ -16,8 +16,8 @@ namespace gestorPedido.Domain.Entities
         [EmailAddress]
         public required string Email { get; set; }
 
-        public List<Contato> Contatos { get; set; } = new();
-        public List<Endereco> Enderecos { get; set; } = new();
+        public ICollection<Contato> Contatos { get; set; } = new List<Contato>();
+        public ICollection<Endereco> Enderecos { get; set; } = new List<Endereco>();
 
         [Required]
         [ForeignKey("Revenda")]

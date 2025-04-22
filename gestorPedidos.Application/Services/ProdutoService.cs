@@ -1,32 +1,30 @@
-﻿using gestorPedido.Domain.Entities;
+﻿using gestorPedido.Domain.Interfaces;
 using gestorPedidos.Application.DTOs;
 using gestorPedidos.Application.DTOs.Response;
 using gestorPedidos.Application.Exceptions;
 using gestorPedidos.Application.Interfaces;
 using gestorPedidos.Application.Mappers;
-using gestorPedidos.Infra.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace gestorPedidos.Application.Services
 {
     public class ProdutoService : IProdutoService
     {
-        private readonly GestorPedidosDbContext _context;
+        private readonly IProdutoRepository _produtoRepository;
 
-        public ProdutoService(GestorPedidosDbContext context)
+        public ProdutoService(IProdutoRepository produtoRepository)
         {
-            _context = context;
+            _produtoRepository = produtoRepository;
         }
 
         public async Task<IEnumerable<ProdutoResponseDto>> GetAllAsync()
         {
-            var produtos = await _context.Produtos.ToListAsync();
+            var produtos = await _produtoRepository.GetAllAsync();
             return produtos.Select(ProdutoMapper.ToResponseDto);
         }
 
         public async Task<ProdutoResponseDto?> GetByIdAsync(int id)
         {
-            var produto = await _context.Produtos.FindAsync(id);
+            var produto = await _produtoRepository.GetByIdAsync(id);
             if (produto == null)
                 throw new NotFoundException("Produto não encontrado.");
 
@@ -35,15 +33,14 @@ namespace gestorPedidos.Application.Services
 
         public async Task<ProdutoResponseDto> CreateAsync(ProdutoDto dto)
         {
-            var produto = ProdutoMapper.ToEntity(dto);
-            _context.Produtos.Add(produto);
-            await _context.SaveChangesAsync();
+            var produto = ProdutoMapper.ToEntity(dto);            
+            await _produtoRepository.AddAsync(produto);
             return ProdutoMapper.ToResponseDto(produto);
         }
 
         public async Task UpdateAsync(int id, ProdutoDto dto)
         {
-            var produto = await _context.Produtos.FindAsync(id);
+            var produto = await _produtoRepository.GetByIdAsync(id);
             if (produto == null)
                 throw new NotFoundException("Produto não encontrado.");
 
@@ -52,17 +49,16 @@ namespace gestorPedidos.Application.Services
             produto.Preco = dto.Preco;
             produto.Estoque = dto.Estoque;
 
-            await _context.SaveChangesAsync();
+            await _produtoRepository.UpdateAsync(produto);
         }
 
         public async Task DeleteAsync(int id)
         {
-            var produto = await _context.Produtos.FindAsync(id);
+            var produto = await _produtoRepository.GetByIdAsync(id);
             if (produto == null)
                 throw new NotFoundException("Produto não encontrado.");
 
-            _context.Produtos.Remove(produto);
-            await _context.SaveChangesAsync();
+            await _produtoRepository.DeleteAsync(produto);
         }
 
         public async Task<ProdutoResponseDto> AdicionarEstoqueAsync(AdicionarEstoqueDto dto)
@@ -70,14 +66,14 @@ namespace gestorPedidos.Application.Services
             if (dto.Quantidade <= 0)
                 throw new BadRequestException("A quantidade deve ser maior que zero.");
 
-            var produto = await _context.Produtos.FindAsync(dto.Idproduto);
+            var produto = await _produtoRepository.GetByIdAsync(dto.Idproduto);
 
             if (produto == null)
                 throw new NotFoundException("Produto não encontrado.");
 
             produto.Estoque += dto.Quantidade;
 
-            await _context.SaveChangesAsync();
+            await _produtoRepository.UpdateAsync(produto);
 
             return ProdutoMapper.ToResponseDto(produto);
         }

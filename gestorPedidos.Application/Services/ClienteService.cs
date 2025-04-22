@@ -1,6 +1,8 @@
 ﻿using gestorPedido.Domain.Entities;
+using gestorPedido.Domain.Interfaces;
 using gestorPedidos.Application.DTOs;
 using gestorPedidos.Application.DTOs.Response;
+using gestorPedidos.Application.Exceptions;
 using gestorPedidos.Application.Interfaces;
 using gestorPedidos.Application.Mappers;
 using gestorPedidos.Infra.Context;
@@ -10,65 +12,51 @@ namespace gestorPedidos.Application.Services
 {
     public class ClienteService : IClienteService
     {
-        private readonly GestorPedidosDbContext _context;
+        private readonly IClienteRepository _clienteRepository;
 
-        public ClienteService(GestorPedidosDbContext context)
+        public ClienteService(IClienteRepository clienteRepository)
         {
-            _context = context;
+            _clienteRepository = clienteRepository;            
         }
 
         public async Task<IEnumerable<ClienteResponseDto>> GetAllAsync()
         {
-            var clientes = await _context.Clientes
-                .Include(c => c.Contatos)
-                    .ThenInclude(t => t.Telefones)
-                .Include(c => c.Enderecos)
-                .Include(c => c.Revenda)
-                .ToListAsync();
+            var clientes = await _clienteRepository.GetAllAsync();
 
             return clientes.Select(ClienteMapper.ToResponseDto);
         }
 
         public async Task<ClienteResponseDto?> GetByIdAsync(int id)
         {
-            var cliente = await _context.Clientes
-                .Include(c => c.Contatos)
-                    .ThenInclude(t => t.Telefones)
-                .Include(c => c.Enderecos)
-                .Include(c => c.Revenda)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            var cliente = await _clienteRepository.GetByIdAsync(id);
 
-            return cliente == null ? null : ClienteMapper.ToResponseDto(cliente);
+            if (cliente == null)
+                throw new NotFoundException("Cliente não encontrado.");
+
+            return ClienteMapper.ToResponseDto(cliente);
         }
 
         public async Task<ClienteResponseDto> CreateAsync(ClienteDto dto)
         {
             var cliente = ClienteMapper.ToEntity(dto);
 
-            _context.Clientes.Add(cliente);
-            await _context.SaveChangesAsync();
+            await _clienteRepository.AddAsync(cliente);
 
             return ClienteMapper.ToResponseDto(cliente);
         }
 
         public async Task UpdateAsync(int id, ClienteDto dto)
         {
-            var cliente = await _context.Clientes
-                .Include(c => c.Contatos)
-                    .ThenInclude(t => t.Telefones)
-                .Include(c => c.Enderecos)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            var OldClient = await _clienteRepository.GetByIdAsync(id);
+            var cliente = OldClient;
 
             if (cliente == null)
-                throw new KeyNotFoundException("Cliente não encontrado.");
+                throw new NotFoundException("Cliente não encontrado.");
 
             cliente.Nome = dto.Nome;
             cliente.Cpf = dto.Cpf;
             cliente.Email = dto.Email;
             cliente.RevendaId = dto.RevendaId;
-
-            _context.Contatos.RemoveRange(cliente.Contatos);
-            _context.Enderecos.RemoveRange(cliente.Enderecos);
 
             cliente.Contatos = dto.Contatos.Select(c => new Contato
             {
@@ -91,18 +79,17 @@ namespace gestorPedidos.Application.Services
                 Cep = e.Cep
             }).ToList();
 
-            await _context.SaveChangesAsync();
+            await _clienteRepository.UpdateAsync(OldClient, cliente);
         }
 
         public async Task DeleteAsync(int id)
         {
-            var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Id == id);
-            if (cliente == null)
-                throw new KeyNotFoundException("Cliente não encontrado.");
+            var cliente = await _clienteRepository.GetByIdAsync(id);
 
-            cliente.DeletedAt = DateTime.UtcNow;
-            _context.Clientes.Update(cliente);
-            await _context.SaveChangesAsync();
+            if (cliente == null)
+                throw new NotFoundException("Cliente não encontrado.");
+
+            await _clienteRepository.DeleteAsync(cliente);
         }
     }
 }

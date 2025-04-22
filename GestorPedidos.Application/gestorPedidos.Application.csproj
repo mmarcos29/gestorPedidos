@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\gestorPedido.Domain\gestorPedido.Domain.csproj" />
-    <ProjectReference Include="..\gestorPedidos.Infra\gestorPedidos.Infra.csproj" />
   </ItemGroup>
 
 </Project>

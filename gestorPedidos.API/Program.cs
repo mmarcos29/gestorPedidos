@@ -2,11 +2,30 @@ using gestorPedidos.API.Configuration;
 using gestorPedidos.API.Middlewares;
 using gestorPedidos.Infra.Context;
 using gestorPedidos.Infra.Seeds;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Adiciona o MassTransit com RabbitMQ e autenticação
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, cfg) =>
+    {        
+        cfg.Host("rabbitmq://localhost", h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+
+        cfg.ReceiveEndpoint("pedidoDistribuidorQueue", e =>
+        {
+            e.ConfigureConsumer<PedidoDistribuidorConsumer>(context);
+        });
+    });
+});
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

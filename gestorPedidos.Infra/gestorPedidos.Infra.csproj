@@ -8,9 +8,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\gestorPedido.Domain\gestorPedido.Domain.csproj" />
+	<ProjectReference Include="..\gestorPedidos.Application\gestorPedidos.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MassTransit" Version="8.4.0" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.4.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.4" />
   </ItemGroup>

@@ -15,6 +15,8 @@ namespace gestorPedidos.API.Configuration
             services.AddScoped<IProdutoService, ProdutoService>();
             services.AddScoped<IPedidoRepository, PedidoRepository>();
             services.AddScoped<IRevendaRepository, RevendaRepository>();
+            services.AddScoped<IClienteRepository, ClienteRepository>();
+            services.AddScoped<IProdutoRepository, ProdutoRepository>();
         }
     }
 }
