@@ -20,10 +20,10 @@ builder.Services.AddMassTransit(x =>
             h.Password("guest");
         });
 
-        cfg.ReceiveEndpoint("pedidoDistribuidorQueue", e =>
-        {
-            e.ConfigureConsumer<PedidoDistribuidorConsumer>(context);
-        });
+        //cfg.ReceiveEndpoint("pedidoDistribuidorQueue", e =>
+        //{
+        //    e.ConfigureConsumer<PedidoDistribuidorConsumer>(context);
+        //});
     });
 });
 

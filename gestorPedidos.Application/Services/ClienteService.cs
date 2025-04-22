@@ -5,8 +5,6 @@ using gestorPedidos.Application.DTOs.Response;
 using gestorPedidos.Application.Exceptions;
 using gestorPedidos.Application.Interfaces;
 using gestorPedidos.Application.Mappers;
-using gestorPedidos.Infra.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace gestorPedidos.Application.Services
 {
